@@ -88,7 +88,6 @@ const handleCall = async (call) => {
         "stt",
         {
           lang: "he",
-          quiet_max: 3, // אחרי 3 שניות שקט - נחשב שהמשתמש סיים לדבר
         }
       );
     } catch (err) {
