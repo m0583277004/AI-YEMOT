@@ -72,8 +72,6 @@ const router = YemotRouter({
 const handleCall = async (call) => {
   const callId = call.ApiCallId || call.callId || call.values?.ApiCallId;
 
-  console.log(`>>> התקבלה בקשה חדשה מימות המשיח! callId=${callId}`);
-
   if (!conversations.has(callId)) {
     conversations.set(callId, []);
   }
@@ -90,13 +88,18 @@ const handleCall = async (call) => {
         "stt",
         {
           lang: "he",
-          use_records_recognition_engine: true, // מנוע זיהוי טוב יותר למשפטים ארוכים
           quiet_max: 3, // אחרי 3 שניות שקט - נחשב שהמשתמש סיים לדבר
         }
       );
     } catch (err) {
       console.error("שגיאה בקבלת דיבור מהמתקשר:", err);
-      break;
+      return call.id_list_message([
+        {
+          type: "text",
+          data: "מצטער, אירעה שגיאה טכנית בזיהוי הדיבור. נסה להתקשר שוב.",
+          removeInvalidChars: true,
+        },
+      ]);
     }
 
     const cleanUserText = (userText || "").trim();
@@ -182,12 +185,9 @@ const app = express();
 // type: () => true - מכריח את הפענוח גם אם ימות לא שולח כותרת Content-Type תקנית.
 app.use(express.urlencoded({ extended: true, type: () => true }));
 
-// לוג גולמי לכל בקשה שמגיעה לשרת - לצורך בדיקה: אם משהו מתקשר ולא רואים שורה כזו
-// בלוגים של Render, סימן שהבקשה בכלל לא מגיעה לשרת (בעיה בהגדרת השלוחה בימות).
+// לוג קצר לכל בקשה שמגיעה - שימושי לבדיקות עתידיות. אפשר למחוק את זה בהמשך אם רוצים לוגים נקיים יותר.
 app.use((req, res, next) => {
-  console.log(`### בקשת ${req.method} התקבלה לכתובת: ${req.originalUrl}`);
-  console.log(`### query: ${JSON.stringify(req.query)}`);
-  console.log(`### body: ${JSON.stringify(req.body)}`);
+  console.log(`### בקשת ${req.method} התקבלה`);
   next();
 });
 
