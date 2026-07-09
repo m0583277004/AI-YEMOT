@@ -67,7 +67,9 @@ const router = YemotRouter({
   timeout: "45s", // כמה זמן לחכות לתגובה מהמתקשר לפני שהשיחה "נשכחת"
 });
 
-router.get("/", async (call) => {
+// הפונקציה שמטפלת בשיחה - רשומה גם עבור GET וגם עבור POST (ראו למטה),
+// כדי שזה יעבוד בלי קשר להגדרת api_url_post בימות המשיח.
+const handleCall = async (call) => {
   const callId = call.ApiCallId || call.callId || call.values?.ApiCallId;
 
   console.log(`>>> התקבלה בקשה חדשה מימות המשיח! callId=${callId}`);
@@ -157,7 +159,12 @@ router.get("/", async (call) => {
       removeInvalidChars: true,
     },
   ]);
-});
+};
+
+// רושמים את אותה פונקציה גם ל-GET וגם ל-POST - כך זה עובד בלי קשר
+// להגדרת api_url_post בימות המשיח (אפשר יהיה גם למחוק את השורה הזו מימות ולהשתמש ב-GET).
+router.get("/", handleCall);
+router.post("/", handleCall);
 
 // ניקוי זיכרון כשהמתקשר מנתק את השיחה
 router.events.on("call_hangup", (call) => {
