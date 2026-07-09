@@ -172,12 +172,15 @@ const app = express();
 // חשוב: ימות המשיח שולח את הנתונים כ-POST בפורמט urlencoded (כי הגדרנו api_url_post=yes).
 // בלי המידלוור הזה, Express לא קורא את גוף הבקשה (req.body), וה-yemot-router2 לא מקבל
 // שום מידע על השיחה - זו הסיבה הנפוצה ביותר ל"אין מענה משרת API" למרות שהבקשה מגיעה לשרת.
-app.use(express.urlencoded({ extended: true }));
+// type: () => true - מכריח את הפענוח גם אם ימות לא שולח כותרת Content-Type תקנית.
+app.use(express.urlencoded({ extended: true, type: () => true }));
 
 // לוג גולמי לכל בקשה שמגיעה לשרת - לצורך בדיקה: אם משהו מתקשר ולא רואים שורה כזו
 // בלוגים של Render, סימן שהבקשה בכלל לא מגיעה לשרת (בעיה בהגדרת השלוחה בימות).
 app.use((req, res, next) => {
   console.log(`### בקשת ${req.method} התקבלה לכתובת: ${req.originalUrl}`);
+  console.log(`### query: ${JSON.stringify(req.query)}`);
+  console.log(`### body: ${JSON.stringify(req.body)}`);
   next();
 });
 
