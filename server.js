@@ -70,6 +70,8 @@ const router = YemotRouter({
 router.get("/", async (call) => {
   const callId = call.ApiCallId || call.callId || call.values?.ApiCallId;
 
+  console.log(`>>> התקבלה בקשה חדשה מימות המשיח! callId=${callId}`);
+
   if (!conversations.has(callId)) {
     conversations.set(callId, []);
   }
@@ -166,6 +168,14 @@ router.events.on("call_hangup", (call) => {
 // ---------- הרצת שרת Express ----------
 
 const app = express();
+
+// לוג גולמי לכל בקשה שמגיעה לשרת - לצורך בדיקה: אם משהו מתקשר ולא רואים שורה כזו
+// בלוגים של Render, סימן שהבקשה בכלל לא מגיעה לשרת (בעיה בהגדרת השלוחה בימות).
+app.use((req, res, next) => {
+  console.log(`### בקשת ${req.method} התקבלה לכתובת: ${req.originalUrl}`);
+  next();
+});
+
 app.use(router);
 
 app.get("/", (req, res) => {
