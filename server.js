@@ -64,7 +64,7 @@ const HANGUP_WORDS = /^(תודה|תודה רבה|להתראות|ביי|סיום|
 
 const router = YemotRouter({
   printLog: true, // הדפסת לוג מפורט - שימושי לבדיקות. אפשר לכבות בהמשך (false)
-  timeout: "45s", // כמה זמן לחכות לתגובה מהמתקשר לפני שהשיחה "נשכחת"
+  timeout: "90s", // כמה זמן לחכות לתגובה מהמתקשר - הוגדל כדי לתת מרווח למקרה של "התעוררות" איטית של השרת בתוכנית החינמית
 });
 
 // הפונקציה שמטפלת בשיחה - רשומה גם עבור GET וגם עבור POST (ראו למטה),
@@ -97,7 +97,8 @@ const handleCall = async (call) => {
         conversations.delete(callId);
         return;
       }
-      console.error("שגיאה בקבלת דיבור מהמתקשר:", err);
+      console.error(`### שגיאת read: name=${err?.name} | message=${err?.message}`);
+      console.error("שגיאה בקבלת דיבור מהמתקשר - פרטים מלאים:", err);
       return call.id_list_message([
         {
           type: "text",
