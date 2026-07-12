@@ -91,6 +91,12 @@ const handleCall = async (call) => {
         }
       );
     } catch (err) {
+      // אם המתקשר כבר ניתק את השיחה, אין טעם לנסות לשלוח לו הודעה - זה רק יוצר שגיאה מיותרת בלוגים
+      if (err?.name === "HangupError" || /hangup/i.test(err?.message || "")) {
+        console.log(`השיחה נותקה על ידי המתקשר (callId=${callId})`);
+        conversations.delete(callId);
+        return;
+      }
       console.error("שגיאה בקבלת דיבור מהמתקשר:", err);
       return call.id_list_message([
         {
