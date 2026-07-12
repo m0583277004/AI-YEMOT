@@ -126,6 +126,7 @@ const handleCall = async (call) => {
     }
 
     history.push({ role: "user", content: cleanUserText });
+    console.log(`### המתקשר אמר: "${cleanUserText}"`);
 
     let aiText;
     try {
@@ -141,7 +142,8 @@ const handleCall = async (call) => {
         .map((block) => block.text)
         .join(" ");
     } catch (err) {
-      console.error("שגיאה בפנייה ל-Claude API:", err);
+      console.error(`### שגיאת Claude API: name=${err?.name} | message=${err?.message}`);
+      console.error("שגיאה בפנייה ל-Claude API - פרטים מלאים:", err);
       conversations.delete(callId);
       return call.id_list_message([
         {
@@ -152,6 +154,7 @@ const handleCall = async (call) => {
       ]);
     }
 
+    console.log(`### Claude ענה: "${aiText}"`);
     aiText = cleanText(aiText) || "לא הצלחתי לנסח תשובה. נסה לשאול בצורה אחרת.";
     history.push({ role: "assistant", content: aiText });
 
