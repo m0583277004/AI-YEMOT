@@ -117,6 +117,20 @@ const handleCall = async (call) => {
       ]);
     }
 
+    // הודעת מערכת של ימות המשיח שאומרת שאזלו יחידות זיהוי הדיבור בחשבון -
+    // זו לא באמת מה שהמתקשר אמר, וחשוב לא לשלוח את זה ל-Claude כאילו זו שאלה אמיתית.
+    if (cleanUserText.includes("אין מספיק יחידות") || cleanUserText.includes("יחידות לשימוש בזיהוי דיבור")) {
+      console.error("### אזלו יחידות זיהוי דיבור בחשבון ימות המשיח - יש לטעון קרדיט/יחידות בממשק ימות");
+      conversations.delete(callId);
+      return call.id_list_message([
+        {
+          type: "text",
+          data: "אין כרגע מספיק יחידות זיהוי דיבור בחשבון ימות המשיח. יש לפנות למנהל המערכת.",
+          removeInvalidChars: true,
+        },
+      ]);
+    }
+
     // בקשת סיום שיחה מפורשת
     if (HANGUP_WORDS.test(cleanUserText)) {
       conversations.delete(callId);
